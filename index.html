@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f0f0; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: white; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #6a1b9a; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #status { margin-top: 10px; padding: 10px; border-radius: 5px; display: none; }
+        .success { background: #d4edda; color: #155724; display: block !important; }
+        .error { background: #f8d7da; color: #721c24; display: block !important; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Отправка времени года на backend</h2>
+        <p>Введите время года, чтобы записать его в файл</p>
+        <input type="text" id="seasonInput" placeholder="Например: Осень">
+        <button onclick="sendSeason()">Отправить</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function sendSeason() {
+            const season = document.getElementById('seasonInput').value;
+            const statusDiv = document.getElementById('status');
+            
+            if (!season.trim()) {
+                statusDiv.className = 'error';
+                statusDiv.innerText = 'Пожалуйста, введите время года!';
+                return;
+            }
+
+            statusDiv.className = '';
+            statusDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/send-season', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ season: season })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'success';
+                    statusDiv.innerText = data.message;
+                    document.getElementById('seasonInput').value = '';
+                } else {
+                    statusDiv.className = 'error';
+                    statusDiv.innerText = data.message;
+                }
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.innerText = 'Не удалось связаться с сервером.';
+            }
+        }
+    </script>
+</body>
+</html>
