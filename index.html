@@ -20,6 +20,12 @@
         <input type="text" id="seasonInput" placeholder="Например: Осень">
         <button onclick="sendSeason()">Отправить</button>
         <div id="status"></div>
+        <hr style="margin: 20px 0;">
+        <h2>Просмотр записей по дате</h2>
+        <p>Выберите дату, чтобы узнать, какие времена года вводили в этот день</p>
+        <input type="date" id="dateInput">
+        <button onclick="getSeasonsByDate()">Показать</button>
+        <div id="result" style="margin-top: 10px;"></div>
     </div>
 
     <script>
@@ -57,6 +63,32 @@
                 statusDiv.innerText = 'Не удалось связаться с сервером.';
             }
         }
+        async function getSeasonsByDate() {
+    const date = document.getElementById('dateInput').value;
+    const resultDiv = document.getElementById('result');
+    
+    if (!date) {
+        resultDiv.className = 'error';
+        resultDiv.innerText = 'Пожалуйста, выберите дату!';
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/get-seasons-by-date?date=${date}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            resultDiv.className = 'success';
+            resultDiv.innerText = data.message;
+        } else {
+            resultDiv.className = 'error';
+            resultDiv.innerText = data.message;
+        }
+    } catch (error) {
+        resultDiv.className = 'error';
+        resultDiv.innerText = 'Не удалось связаться с сервером.';
+    }
+}
     </script>
 </body>
 </html>
